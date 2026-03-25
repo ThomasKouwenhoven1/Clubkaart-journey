@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Journey — Vernieuwde Clubkaart Almere City FC</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #D52B1E;
+  --black: #0E0E0E;
+  --white: #FAFAFA;
+  --g100: #F2F2F0;
+  --g200: #E4E4E0;
+  --g400: #A0A09A;
+  --g600: #5C5C58;
+  --g800: #2A2A28;
+  --p1: #534AB7; --p1l: #EEEDFE; --p1m: #AFA9EC;
+  --p2: #0F6E56; --p2l: #E1F5EE; --p2m: #5DCAA5;
+  --p3: #185FA5; --p3l: #E6F1FB; --p3m: #85B7EB;
+  --p4: #BA7517; --p4l: #FAEEDA; --p4m: #EF9F27;
+  --p5: #993C1D; --p5l: #FAECE7; --p5m: #F0997B;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r: 12px;
+}
+
+body { font-family: var(--font); background: var(--white); color: var(--black); min-height: 100vh; overflow-x: hidden; }
+
+.hdr { background: var(--black); color: var(--white); padding: 2.5rem 2rem 2rem; position: relative; overflow: hidden; }
+.hdr::before { content:''; position:absolute; right:-60px; top:-60px; width:260px; height:260px; border-radius:50%; background:var(--red); opacity:.12; }
+.hdr-badge { display:inline-block; background:var(--red); color:#fff; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:4px 12px; border-radius:20px; margin-bottom:1rem; }
+.hdr h1 { font-size:clamp(22px,5vw,34px); font-weight:600; line-height:1.15; margin-bottom:.5rem; }
+.hdr h1 span { color:var(--red); }
+.hdr p { font-size:14px; color:#aaa; line-height:1.6; max-width:480px; }
+.hdr-meta { margin-top:1.5rem; display:flex; gap:1.5rem; flex-wrap:wrap; }
+.hdr-meta span { font-size:12px; color:#888; }
+.hdr-meta strong { color:#ccc; font-weight:500; }
+
+.tabs { background:var(--white); border-bottom:1px solid var(--g200); padding:.75rem 2rem; display:flex; gap:6px; overflow-x:auto; position:sticky; top:0; z-index:20; }
+.tabs::-webkit-scrollbar { height:3px; }
+.tabs::-webkit-scrollbar-thumb { background:var(--g200); border-radius:2px; }
+.tab { flex-shrink:0; padding:6px 16px; font-family:var(--font); font-size:12.5px; font-weight:500; border-radius:20px; border:1px solid var(--g200); background:transparent; color:var(--g600); cursor:pointer; transition:all .18s; }
+.tab:hover { border-color:var(--g400); color:var(--black); }
+.tab.on { color:#fff; border-color:transparent; }
+.tab[data-i="0"].on { background:var(--p1); }
+.tab[data-i="1"].on { background:var(--p2); }
+.tab[data-i="2"].on { background:var(--p3); }
+.tab[data-i="3"].on { background:var(--p4); }
+.tab[data-i="4"].on { background:var(--p5); }
+
+main { padding:2rem; max-width:860px; margin:0 auto; }
+
+.phase { display:none; }
+.phase.on { display:block; animation:up .28s ease; }
+@keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+.card-hdr { padding:1.5rem; border-radius:var(--r) var(--r) 0 0; border:1px solid var(--g200); border-bottom:none; position:relative; overflow:hidden; }
+.card-hdr::after { content:attr(data-n); position:absolute; right:1.25rem; top:50%; transform:translateY(-50%); font-family:var(--mono); font-size:72px; font-weight:500; opacity:.07; line-height:1; pointer-events:none; }
+.ptag { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+.card-hdr h2 { font-size:22px; font-weight:600; margin-bottom:6px; }
+.card-hdr p { font-size:14px; color:var(--g600); line-height:1.6; max-width:520px; }
+
+.card-body { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--g200); border-top:none; border-bottom:none; }
+@media(max-width:560px) { .card-body { grid-template-columns:1fr; } }
+.col { padding:1.25rem 1.5rem; }
+.col+.col { border-left:1px solid var(--g200); }
+@media(max-width:560px) { .col+.col { border-left:none; border-top:1px solid var(--g200); } }
+.col-lbl { font-size:10.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--g400); margin-bottom:12px; }
+
+.item { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; font-size:13.5px; line-height:1.55; color:var(--g800); }
+.dot { width:6px; height:6px; border-radius:50%; margin-top:5px; flex-shrink:0; }
+
+.item-btn { display:flex; align-items:flex-start; gap:10px; width:100%; margin-bottom:10px; padding:5px 6px 5px 0; background:none; border:none; font-family:var(--font); font-size:13.5px; line-height:1.55; color:var(--g800); cursor:pointer; text-align:left; border-radius:6px; transition:background .12s; }
+.item-btn:hover { background:rgba(0,0,0,.04); }
+.item-btn .itext { display:inline-flex; align-items:center; gap:5px; }
+.item-btn .itext::after { content:'↗'; font-size:11px; opacity:.35; }
+.item-btn:hover .itext::after { opacity:.9; }
+
+.emo-row { padding:1rem 1.5rem; border:1px solid var(--g200); border-top:none; display:flex; align-items:center; gap:14px; background:var(--g100); }
+.emo-lbl { font-size:10.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--g400); white-space:nowrap; }
+.emo-track { flex:1; height:5px; background:var(--g200); border-radius:3px; overflow:hidden; }
+.emo-fill { height:100%; border-radius:3px; }
+.emo-word { font-size:13px; font-weight:600; min-width:105px; text-align:right; }
+
+.card-ft { padding:.875rem 1.5rem; border:1px solid var(--g200); border-top:none; border-radius:0 0 var(--r) var(--r); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:500; border:1px solid; }
+.ft-ch { margin-left:auto; font-size:12px; color:var(--g400); }
+
+.nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem; }
+.step-ind { font-size:12px; font-family:var(--mono); color:var(--g400); }
+.arr-btn { padding:8px 20px; font-family:var(--font); font-size:13px; font-weight:500; border:1px solid var(--g200); border-radius:20px; background:var(--white); color:var(--g600); cursor:pointer; transition:all .15s; user-select:none; }
+.arr-btn:hover:not([disabled]) { border-color:var(--black); color:var(--black); }
+.arr-btn[disabled] { opacity:.3; cursor:not-allowed; }
+
+.curve-wrap { margin-top:2.5rem; border:1px solid var(--g200); border-radius:var(--r); overflow:hidden; }
+.curve-hdr { padding:.875rem 1.5rem; background:var(--g100); border-bottom:1px solid var(--g200); font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--g400); }
+.curve-body { padding:1.5rem; }
+
+.overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.45); align-items:center; justify-content:center; padding:1.5rem; }
+.overlay.open { display:flex; animation:fadeO .18s ease; }
+@keyframes fadeO { from { opacity:0; } to { opacity:1; } }
+.popup { background:var(--white); border-radius:var(--r); max-width:500px; width:100%; max-height:80vh; overflow-y:auto; border:1px solid var(--g200); animation:slideU .22s ease; }
+@keyframes slideU { from { transform:translateY(16px); opacity:0; } to { transform:none; opacity:1; } }
+.pop-hdr { padding:1.25rem 1.5rem 1rem; border-bottom:1px solid var(--g200); display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; }
+.pop-title { font-size:16px; font-weight:600; line-height:1.3; }
+.pop-close { background:none; border:none; cursor:pointer; font-size:20px; color:var(--g400); line-height:1; flex-shrink:0; padding:0; transition:color .12s; }
+.pop-close:hover { color:var(--black); }
+.pop-body { padding:1.25rem 1.5rem; }
+.pop-sec { margin-bottom:1.25rem; }
+.pop-sec:last-child { margin-bottom:0; }
+.pop-sec-lbl { font-size:10.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--g400); margin-bottom:8px; }
+.pop-sec p { font-size:13.5px; line-height:1.65; color:var(--g800); }
+.src { display:inline-block; margin-top:10px; font-size:11px; font-family:var(--mono); color:var(--g400); background:var(--g100); padding:3px 8px; border-radius:6px; }
+
+.pg-ft { margin-top:3rem; padding:1.5rem 2rem; border-top:1px solid var(--g200); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.pg-ft p { font-size:12px; color:var(--g400); }
+.pg-ft strong { color:var(--g600); font-weight:500; }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-badge">Sprint 3 — Groep 6 — 2026</div>
+  <h1>Customer Journey<br><span>Vernieuwde Clubkaart</span></h1>
+  <p>Van eerste ontdekking tot trouwe fan-ambassadeur. Klik op touchpoints voor de wetenschappelijke onderbouwing.</p>
+  <div class="hdr-meta">
+    <span><strong>Concept</strong> Almere City FC Clubkaart</span>
+    <span><strong>Doelgroep</strong> 18–25 jaar</span>
+    <span><strong>Groep 6</strong> Kouwenhoven · Kranendonk · Dekker</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab on" data-i="0">1 · Bewustwording</button>
+  <button class="tab" data-i="1">2 · Overweging</button>
+  <button class="tab" data-i="2">3 · Aanschaf</button>
+  <button class="tab" data-i="3">4 · Eerste ervaring</button>
+  <button class="tab" data-i="4">5 · Loyaliteit</button>
+</nav>
+
+<main>
+
+<!-- PHASE 0 -->
+<div class="phase on" id="ph0">
+  <div class="card-hdr" data-n="01" style="background:var(--p1l)">
+    <div class="ptag" style="color:var(--p1)">Fase 1 van 5</div>
+    <h2>Bewustwording</h2>
+    <p>De fan ontdekt voor het eerst dat er een nieuwe clubkaart bestaat — via de club, zijn omgeving of social media.</p>
+  </div>
+  <div class="card-body">
+    <div class="col">
+      <div class="col-lbl">Touchpoints &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">— klik voor onderbouwing</span></div>
+      <button class="item-btn" onclick="showPopup('social')"><div class="dot" style="background:var(--p1);margin-top:6px;flex-shrink:0"></div><span class="itext">Aankondiging via Instagram &amp; TikTok</span></button>
+      <button class="item-btn" onclick="showPopup('signage')"><div class="dot" style="background:var(--p1);margin-top:6px;flex-shrink:0"></div><span class="itext">Signage in het stadion op wedstrijddag</span></button>
+      <button class="item-btn" onclick="showPopup('mond')"><div class="dot" style="background:var(--p1);margin-top:6px;flex-shrink:0"></div><span class="itext">Vriend of vriendin die de kaart al heeft</span></button>
+      <button class="item-btn" onclick="showPopup('push-basic')"><div class="dot" style="background:var(--p1);margin-top:6px;flex-shrink:0"></div><span class="itext">Push-melding in de bestaande ACFC-app</span></button>
+    </div>
+    <div class="col">
+      <div class="col-lbl">Gedachten van de fan</div>
+      <div class="item"><div class="dot" style="background:var(--p1m)"></div>"Wat is dat precies? Wat krijg ik er dan voor?"</div>
+      <div class="item"><div class="dot" style="background:var(--p1m)"></div>"€10? Dat is niet veel."</div>
+      <div class="item"><div class="dot" style="background:var(--p1m)"></div>"Mijn vriend heeft 'm al, misschien is het leuk."</div>
+      <div class="item"><div class="dot" style="background:var(--p1m)"></div>"Ik ga het onthouden voor de volgende keer."</div>
+    </div>
+  </div>
+  <div class="emo-row">
+    <div class="emo-lbl">Gevoel</div>
+    <div class="emo-track"><div class="emo-fill" style="width:55%;background:var(--p1)"></div></div>
+    <div class="emo-word" style="color:var(--p1)">Nieuwsgierig</div>
+  </div>
+  <div class="card-ft">
+    <span class="badge" style="background:var(--p1l);color:var(--p1);border-color:var(--p1m)">Doel: zichtbaarheid creëren</span>
+    <span class="ft-ch">Kanaal: social media, in-stadium, mond-tot-mond</span>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase" id="ph1">
+  <div class="card-hdr" data-n="02" style="background:var(--p2l)">
+    <div class="ptag" style="color:var(--p2)">Fase 2 van 5</div>
+    <h2>Overweging</h2>
+    <p>De fan bekijkt het aanbod actief en weegt af of de kaart zijn geld waard is.</p>
+  </div>
+  <div class="card-body">
+    <div class="col">
+      <div class="col-lbl">Touchpoints &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">— klik voor onderbouwing</span></div>
+      <button class="item-btn" onclick="showPopup('landing')"><div class="dot" style="background:var(--p2);margin-top:6px;flex-shrink:0"></div><span class="itext">Landingspagina of sectie in de ACFC-app</span></button>
+      <button class="item-btn" onclick="showPopup('voordelen')"><div class="dot" style="background:var(--p2);margin-top:6px;flex-shrink:0"></div><span class="itext">Voordelen-overzicht: Fanscan, rewards, content</span></button>
+      <button class="item-btn" onclick="showPopup('prijs')"><div class="dot" style="background:var(--p2);margin-top:6px;flex-shrink:0"></div><span class="itext">Prijsstrategie: €10 als psychologische drempel</span></button>
+      <button class="item-btn" onclick="showPopup('social-proof')"><div class="dot" style="background:var(--p2);margin-top:6px;flex-shrink:0"></div><span class="itext">Social proof: hoeveel fans gingen je voor?</span></button>
+    </div>
+    <div class="col">
+      <div class="col-lbl">Gedachten van de fan</div>
+      <div class="item"><div class="dot" style="background:var(--p2m)"></div>"Punten sparen voor merchandise, dat klinkt wel leuk."</div>
+      <div class="item"><div class="dot" style="background:var(--p2m)"></div>"Ik ga toch al 5x naar het stadion — dan verdien ik het terug."</div>
+      <div class="item"><div class="dot" style="background:var(--p2m)"></div>"De quiz in de rust? Wel grappig."</div>
+      <div class="item"><div class="dot" style="background:var(--p2m)"></div>"€10 is een biertje, dat kan ik er wel voor over hebben."</div>
+    </div>
+  </div>
+  <div class="emo-row">
+    <div class="emo-lbl">Gevoel</div>
+    <div class="emo-track"><div class="emo-fill" style="width:65%;background:var(--p2)"></div></div>
+    <div class="emo-word" style="color:var(--p2)">Geïnteresseerd</div>
+  </div>
+  <div class="card-ft">
+    <span class="badge" style="background:var(--p2l);color:var(--p2);border-color:var(--p2m)">Doel: drempel wegnemen</span>
+    <span class="ft-ch">Kanaal: app, website</span>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase" id="ph2">
+  <div class="card-hdr" data-n="03" style="background:var(--p3l)">
+    <div class="ptag" style="color:var(--p3)">Fase 3 van 5</div>
+    <h2>Aanschaf &amp; onboarding</h2>
+    <p>De fan koopt de kaart voor €10 en personaliseert zijn profiel. De club ontvangt direct bruikbare fandata.</p>
+  </div>
+  <div class="card-body">
+    <div class="col">
+      <div class="col-lbl">Touchpoints &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">— klik voor onderbouwing</span></div>
+      <button class="item-btn" onclick="showPopup('betaling')"><div class="dot" style="background:var(--p3);margin-top:6px;flex-shrink:0"></div><span class="itext">Betaling via de app (€10, eenmalig per seizoen)</span></button>
+      <button class="item-btn" onclick="showPopup('crm')"><div class="dot" style="background:var(--p3);margin-top:6px;flex-shrink:0"></div><span class="itext">Onboarding: naam, leeftijd, woonplaats, favoriete speler</span></button>
+      <button class="item-btn" onclick="showPopup('welkomst')"><div class="dot" style="background:var(--p3);margin-top:6px;flex-shrink:0"></div><span class="itext">Bevestigingsmelding + welkomstbadge</span></button>
+      <div class="item"><div class="dot" style="background:var(--p3)"></div>Uitleg Fanscan, rewards-winkel en leaderboard</div>
+    </div>
+    <div class="col">
+      <div class="col-lbl">Gedachten van de fan</div>
+      <div class="item"><div class="dot" style="background:var(--p3m)"></div>"Dat ging snel — betaald en meteen actief."</div>
+      <div class="item"><div class="dot" style="background:var(--p3m)"></div>"Ik heb al een welkomstbadge, leuk begin."</div>
+      <div class="item"><div class="dot" style="background:var(--p3m)"></div>"Kan niet wachten tot de volgende wedstrijd om te scannen."</div>
+      <div class="item"><div class="dot" style="background:var(--p3m)"></div>"De rewards-winkel ziet er goed uit, ik ga voor die sjaal."</div>
+    </div>
+  </div>
+  <div class="emo-row">
+    <div class="emo-lbl">Gevoel</div>
+    <div class="emo-track"><div class="emo-fill" style="width:80%;background:var(--p3)"></div></div>
+    <div class="emo-word" style="color:var(--p3)">Enthousiast</div>
+  </div>
+  <div class="card-ft">
+    <span class="badge" style="background:var(--p3l);color:var(--p3);border-color:var(--p3m)">CRM-data verzameld</span>
+    <span class="ft-ch">Kanaal: app (aanschaf + onboarding)</span>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase" id="ph3">
+  <div class="card-hdr" data-n="04" style="background:var(--p4l)">
+    <div class="ptag" style="color:var(--p4)">Fase 4 van 5</div>
+    <h2>Eerste wedstrijdervaring</h2>
+    <p>De fan gebruikt de kaart voor het eerst actief in het stadion. Dit moment bepaalt of hij terugkomt.</p>
+  </div>
+  <div class="card-body">
+    <div class="col">
+      <div class="col-lbl">Touchpoints &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">— klik voor onderbouwing</span></div>
+      <button class="item-btn" onclick="showPopup('fanscan')"><div class="dot" style="background:var(--p4);margin-top:6px;flex-shrink:0"></div><span class="itext">Fanscan bij de ingang → 2 welkomstmunten</span></button>
+      <button class="item-btn" onclick="showPopup('korting')"><div class="dot" style="background:var(--p4);margin-top:6px;flex-shrink:0"></div><span class="itext">Fanscan bij horeca → 5% korting + munten</span></button>
+      <button class="item-btn" onclick="showPopup('quiz')"><div class="dot" style="background:var(--p4);margin-top:6px;flex-shrink:0"></div><span class="itext">Rustquiz → kans op drankjes + leaderboardpunten</span></button>
+      <button class="item-btn" onclick="showPopup('push-rich')"><div class="dot" style="background:var(--p4);margin-top:6px;flex-shrink:0"></div><span class="itext">Rijke push-meldingen: opstelling, doelpunten, stand</span></button>
+    </div>
+    <div class="col">
+      <div class="col-lbl">Gedachten van de fan</div>
+      <div class="item"><div class="dot" style="background:var(--p4m)"></div>"Gewoon scannen en meteen punten — dit werkt écht."</div>
+      <div class="item"><div class="dot" style="background:var(--p4m)"></div>"Ik stond 3e in de quiz, volgende keer win ik."</div>
+      <div class="item"><div class="dot" style="background:var(--p4m)"></div>"De meldingen zijn veel beter dan normaal, dit voelt exclusief."</div>
+      <div class="item"><div class="dot" style="background:var(--p4m)"></div>"Ik ga mijn vriend ook zeggen dat hij de kaart moet halen."</div>
+    </div>
+  </div>
+  <div class="emo-row">
+    <div class="emo-lbl">Gevoel</div>
+    <div class="emo-track"><div class="emo-fill" style="width:90%;background:var(--p4)"></div></div>
+    <div class="emo-word" style="color:var(--p4)">Trots &amp; verslaafd</div>
+  </div>
+  <div class="card-ft">
+    <span class="badge" style="background:var(--p4l);color:var(--p4);border-color:var(--p4m)">Goal gradient actief</span>
+    <span class="ft-ch">Kanaal: in-stadium (scan, horeca, quiz, push)</span>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase" id="ph4">
+  <div class="card-hdr" data-n="05" style="background:var(--p5l)">
+    <div class="ptag" style="color:var(--p5)">Fase 5 van 5</div>
+    <h2>Loyaliteit &amp; ambassadeurschap</h2>
+    <p>De fan keert structureel terug, groeit in het rewardssysteem en trekt nieuwe fans mee.</p>
+  </div>
+  <div class="card-body">
+    <div class="col">
+      <div class="col-lbl">Touchpoints &nbsp;<span style="font-weight:400;opacity:.6;text-transform:none;letter-spacing:0">— klik voor onderbouwing</span></div>
+      <button class="item-btn" onclick="showPopup('verjaardag')"><div class="dot" style="background:var(--p5);margin-top:6px;flex-shrink:0"></div><span class="itext">Verjaardagsvideo van favoriete speler via app</span></button>
+      <button class="item-btn" onclick="showPopup('content')"><div class="dot" style="background:var(--p5);margin-top:6px;flex-shrink:0"></div><span class="itext">Exclusieve behind-the-scenes content in de app</span></button>
+      <button class="item-btn" onclick="showPopup('rewards')"><div class="dot" style="background:var(--p5);margin-top:6px;flex-shrink:0"></div><span class="itext">Eerste reward inlossen (bijv. sjaal bij 35 munten)</span></button>
+      <button class="item-btn" onclick="showPopup('leaderboard')"><div class="dot" style="background:var(--p5);margin-top:6px;flex-shrink:0"></div><span class="itext">Seizoen-leaderboard: top 3 wint groot</span></button>
+    </div>
+    <div class="col">
+      <div class="col-lbl">Gedachten van de fan</div>
+      <div class="item"><div class="dot" style="background:var(--p5m)"></div>"Ik ben écht een echte fan nu, meer dan anderen."</div>
+      <div class="item"><div class="dot" style="background:var(--p5m)"></div>"Die video van Björn op mijn verjaardag was zo gaaf."</div>
+      <div class="item"><div class="dot" style="background:var(--p5m)"></div>"Ik ga sowieso volgend seizoen weer verlengen."</div>
+      <div class="item"><div class="dot" style="background:var(--p5m)"></div>"Heb al twee vrienden overgehaald een kaart te kopen."</div>
+    </div>
+  </div>
+  <div class="emo-row">
+    <div class="emo-lbl">Gevoel</div>
+    <div class="emo-track"><div class="emo-fill" style="width:98%;background:var(--p5)"></div></div>
+    <div class="emo-word" style="color:var(--p5)">Trots — insider</div>
+  </div>
+  <div class="card-ft">
+    <span class="badge" style="background:var(--p5l);color:var(--p5);border-color:var(--p5m)">Lifetime value stijgt</span>
+    <span class="ft-ch">Kanaal: app, in-stadium, mond-tot-mond</span>
+  </div>
+</div>
+
+<!-- NAV ROW -->
+<div class="nav-row">
+  <button class="arr-btn" id="prevBtn">&#8592; Vorige fase</button>
+  <span class="step-ind" id="stepInd">01 / 05</span>
+  <button class="arr-btn" id="nextBtn">Volgende fase &#8594;</button>
+</div>
+
+<!-- EMOTION CURVE -->
+<div class="curve-wrap">
+  <div class="curve-hdr">Emotiecurve — stijgende betrokkenheid per fase</div>
+  <div class="curve-body">
+    <svg width="100%" viewBox="0 0 720 160" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <defs>
+        <linearGradient id="cg" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#534AB7"/>
+          <stop offset="25%" stop-color="#0F6E56"/>
+          <stop offset="50%" stop-color="#185FA5"/>
+          <stop offset="75%" stop-color="#BA7517"/>
+          <stop offset="100%" stop-color="#993C1D"/>
+        </linearGradient>
+      </defs>
+      <line x1="60" y1="20" x2="60" y2="118" stroke="#E4E4E0" stroke-width="1"/>
+      <line x1="60" y1="118" x2="700" y2="118" stroke="#E4E4E0" stroke-width="1"/>
+      <line x1="60" y1="90" x2="695" y2="90" stroke="#E4E4E0" stroke-width="0.5" stroke-dasharray="3 4"/>
+      <line x1="60" y1="60" x2="695" y2="60" stroke="#E4E4E0" stroke-width="0.5" stroke-dasharray="3 4"/>
+      <line x1="60" y1="30" x2="695" y2="30" stroke="#E4E4E0" stroke-width="0.5" stroke-dasharray="3 4"/>
+      <path d="M100,96 C180,85 240,70 300,54 C360,38 420,26 480,18 C540,10 610,8 650,6" fill="none" stroke="url(#cg)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M100,96 C180,85 240,70 300,54 C360,38 420,26 480,18 C540,10 610,8 650,6 L650,118 L100,118 Z" fill="url(#cg)" opacity="0.07"/>
+      <circle cx="100" cy="96" r="6" fill="#534AB7" stroke="white" stroke-width="2"/>
+      <circle cx="250" cy="66" r="6" fill="#0F6E56" stroke="white" stroke-width="2"/>
+      <circle cx="390" cy="38" r="6" fill="#185FA5" stroke="white" stroke-width="2"/>
+      <circle cx="510" cy="18" r="6" fill="#BA7517" stroke="white" stroke-width="2"/>
+      <circle cx="650" cy="6" r="6" fill="#993C1D" stroke="white" stroke-width="2"/>
+      <text x="100" y="136" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">Bewust-</text>
+      <text x="100" y="149" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">wording</text>
+      <text x="250" y="136" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">Over-</text>
+      <text x="250" y="149" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">weging</text>
+      <text x="390" y="136" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">Aanschaf</text>
+      <text x="510" y="136" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">1e wed-</text>
+      <text x="510" y="149" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">strijdag</text>
+      <text x="650" y="136" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">Loyali-</text>
+      <text x="650" y="149" font-family="'DM Sans',sans-serif" font-size="10.5" fill="#5C5C58" text-anchor="middle">teit</text>
+    </svg>
+  </div>
+</div>
+
+</main>
+
+<footer class="pg-ft">
+  <p><strong>Groep 6</strong> — Thomas Kouwenhoven · Feico Kranendonk · Tim Dekker</p>
+  <p>Hogeschool van Amsterdam · Commerciële Economie · Sprint 3, 2026</p>
+</footer>
+
+<!-- POPUP -->
+<div class="overlay" id="overlay">
+  <div class="popup" id="popup">
+    <div class="pop-hdr">
+      <div class="pop-title" id="popTitle"></div>
+      <button class="pop-close" id="popClose">&#x2715;</button>
+    </div>
+    <div class="pop-body" id="popBody"></div>
+  </div>
+</div>
+
+<script>
+var cur = 0;
+var total = 5;
+
+function showPhase(n) {
+  var i;
+  for (i = 0; i < total; i++) {
+    document.getElementById('ph' + i).classList.remove('on');
+    document.querySelectorAll('.tab')[i].classList.remove('on');
+  }
+  cur = n;
+  document.getElementById('ph' + cur).classList.add('on');
+  document.querySelectorAll('.tab')[cur].classList.add('on');
+  document.getElementById('prevBtn').disabled = (cur === 0);
+  document.getElementById('nextBtn').disabled = (cur === total - 1);
+  var s = cur + 1;
+  document.getElementById('stepInd').textContent = (s < 10 ? '0' + s : s) + ' / 0' + total;
+}
+
+document.getElementById('prevBtn').onclick = function() { if (cur > 0) showPhase(cur - 1); };
+document.getElementById('nextBtn').onclick = function() { if (cur < total - 1) showPhase(cur + 1); };
+
+var tabs = document.querySelectorAll('.tab');
+for (var t = 0; t < tabs.length; t++) {
+  (function(idx) {
+    tabs[idx].onclick = function() { showPhase(idx); };
+  })(t);
+}
+
+showPhase(0);
+
+/* POPUP */
+var popData = {
+  'social': { title: 'Social media als ontdekkingskanaal', secs: [
+    { l: 'Waarom dit werkt', t: 'Meer dan 90% van Gen Z gebruikt social media voor sportcontent. Twee derde van Gen Z-fans ontdekte een club via short-form video op platforms zoals TikTok en Instagram Reels. Korte, authentieke content scoort structureel beter dan gelikte producties.' },
+    { l: 'Wat dit betekent voor ACFC', t: 'Aankondigingen van de clubkaart werken het best als korte video\'s: een speler die zijn kaart laat zien, of een behind-the-scenes moment gekoppeld aan de launch. Geen reclamebanner — authentieke content.' },
+    { l: 'Bron', t: 'WSC Sports (2026); Digital Content Next (2025)', src: true }
+  ]},
+  'signage': { title: 'In-stadium signage & zichtbaarheid', secs: [
+    { l: 'Context', t: 'Fans die al in het stadion zijn, zijn de meest geëngageerde doelgroep. Het stadion is het meest logische moment om de kaart te introduceren: de fan is emotioneel betrokken en omringd door medefans.' },
+    { l: 'Tactisch', t: 'Signage bij de ingang, op de videoborden en bij de horeca vergroot de bewustwording zonder extra mediabudget. Koppel dit aan een QR-code naar de aankooppagina voor directe conversie.' },
+    { l: 'Bron', t: 'Eigen fansafari-onderzoek (Kouwenhoven et al., 2026)', src: true }
+  ]},
+  'mond': { title: 'Mond-tot-mond als verspreidingsmechanisme', secs: [
+    { l: 'Waarom dit krachtig is', t: 'Aanbevelingen van vrienden en leeftijdsgenoten zijn de meest geloofwaardige marketingvorm, zeker voor 18–25-jarigen. Wanneer een vriend de kaart al heeft en enthousiast is, verlaagt dat de drempel voor de ander significant.' },
+    { l: 'Hoe het concept dit versterkt', t: 'Het leaderboard en de quiz hebben een inherent competitief element: fans willen weten hoe vrienden het doen. Dit creëert een natuurlijke aanleiding om de kaart aan te bevelen.' },
+    { l: 'Bron', t: 'Cialdini (2007); Kouwenhoven et al. (2026)', src: true }
+  ]},
+  'push-basic': { title: 'Push-meldingen als aankondigingskanaal', secs: [
+    { l: 'Effectiviteit van push', t: '77% van de mensen had de afgelopen maand interactie met een push-melding. Apps die effectief communiceerden via push behielden 54% van iOS-gebruikers in de eerste 90 dagen — tegenover 95% verlies bij apps zonder push.' },
+    { l: 'Strategie', t: 'Een gerichte push aan bestaande app-gebruikers over de nieuwe clubkaart bereikt de meest loyale fanbase direct. Goedkoper dan adverteren en met een hogere open rate.' },
+    { l: 'Bron', t: 'MobileLoud (2025); Airship (2023)', src: true }
+  ]},
+  'landing': { title: 'Landingspagina & app-sectie', secs: [
+    { l: 'Doel van de pagina', t: 'De landingspagina converteert nieuwsgierigheid naar beslissing. Essentieel is dat de voordelen direct zichtbaar zijn: wat krijg ik, wat kost het, en hoe werkt het — in drie zinnen.' },
+    { l: 'Ontwerpprincipe', t: 'Lage cognitieve belasting: geen lange teksten, maar iconen en korte labels per voordeel. De aankoopknop moet direct zichtbaar zijn zonder scrollen.' },
+    { l: 'Bron', t: 'Cialdini (2007); PassKit (2025)', src: true }
+  ]},
+  'voordelen': { title: 'Voordelen-overzicht als conversiemiddel', secs: [
+    { l: 'Wat fans willen zien', t: 'Wanneer de prijs laag genoeg is om risico te elimineren, verschuift de beslissing van "is het de moeite waard?" naar "wat kan ik ermee winnen?" — een fundamenteel andere psychologische toestand.' },
+    { l: 'De vier pijlers zichtbaar maken', t: 'Fanscan, mijlpalen & rewards, leaderboard & quiz, en exclusieve voordelen moeten elk met één concrete zin worden uitgelegd. Te veel details werkt averechts in de overwegingsfase.' },
+    { l: 'Bron', t: 'Cialdini (2007); Kim et al. (2019)', src: true }
+  ]},
+  'prijs': { title: 'Prijsstrategie: €10 als psychologische drempel', secs: [
+    { l: 'Psychologische prijstheorie', t: 'De prijs van €10 valt onder het psychologische drempelpunt van €12,50. Onderzoek naar consumentengedrag toont aan dat lage instapprijzen de conversiekloof aanzienlijk verkleinen, vooral bij jongere doelgroepen.' },
+    { l: 'Vergelijking met de markt', t: 'Clermont Foot 63 bouwde in negen maanden een interactief rewardsprogramma op met 2.740 leden door een laagdrempelig instapmodel. Het verhogen naar €12,50 levert bij 1.000 kaarthouders slechts €2.500 extra op, maar riskeert de conversie meetbaar te verlagen.' },
+    { l: 'Break-even', t: 'Break-even in jaar 1 ligt bij circa 700 kaarthouders. Vanaf jaar 2 is het concept winstgevend in alle drie de scenario\'s.' },
+    { l: 'Bron', t: 'Cialdini (2007); LiveWall (2023); eigen kosten-batenanalyse Groep 6', src: true }
+  ]},
+  'social-proof': { title: 'Social proof als beslissingsfactor', secs: [
+    { l: 'Hoe social proof werkt', t: 'Mensen kijken bij onzekerheid naar het gedrag van anderen. Wanneer zichtbaar is hoeveel fans al een kaart hebben, verlaagt dit de drempel voor twijfelaars significant.' },
+    { l: 'Toepassing', t: 'Toon in de app het aantal actieve kaarthouders, en koppel dit aan het leaderboard ("3.847 fans sparen al mee"). Dit activeert het bandwagon-effect.' },
+    { l: 'Bron', t: 'Cialdini (2007)', src: true }
+  ]},
+  'betaling': { title: 'Laagdrempelige betaling via de app', secs: [
+    { l: 'Frictionloos ontwerp', t: 'Hoe minder stappen een aankoop kost, hoe hoger de conversie. Apple Pay en iDEAL in-app elimineren het moment van twijfel dat optreedt bij het invullen van betaalgegevens.' },
+    { l: 'Doelgroepfit', t: 'De doelgroep van 18–25 jaar ziet digitale betalingen als basisverwachting, niet als extraatje. Dit bleek uit observaties tijdens ACFC-wedstrijden.' },
+    { l: 'Bron', t: 'Kouwenhoven et al. (2026); Zatap (2024)', src: true }
+  ]},
+  'crm': { title: 'CRM & fandata via onboarding', secs: [
+    { l: 'Waarom dit strategisch is', t: 'Bij aanschaf vult de fan zijn gegevens in: naam, leeftijd, gender, woonplaats, e-mailadres en telefoonnummer. Dit stroomt direct door naar het CRM — een expliciete wens vanuit de kickoff met de club.' },
+    { l: 'Huidige situatie vs. nieuw', t: 'Van de 33.000 fanprofielen in het huidige systeem is slechts 60% volledig. De clubkaart maakt elk nieuw profiel per definitie compleet en toestemmingsgedekt via opt-in bij aanschaf.' },
+    { l: 'Lange-termijnwaarde', t: 'De Fanscan voegt gedragsdata toe: hoe vaak bezoekt iemand een wedstrijd, wat besteedt hij, welke content consumeert hij?' },
+    { l: 'Bron', t: 'Schmitz (2026); Zatap (2024)', src: true }
+  ]},
+  'welkomst': { title: 'Welkomstbadge & bevestigingsmelding', secs: [
+    { l: 'Psychologisch effect', t: 'Een directe beloning na aanschaf activeert het beloningssysteem en bevestigt de beslissing positief. Dit vermindert cognitieve dissonantie en verhoogt de kans op eerste gebruik.' },
+    { l: 'Badges als statussymbool', t: 'Badges werken bijzonder goed voor jongeren omdat ze "status" creëren — een universeel menselijk verlangen naar erkenning en onderscheid. De welkomstbadge is de eerste stap in dit systeem.' },
+    { l: 'Bron', t: 'Mastercard Services (2023); Kim et al. (2019)', src: true }
+  ]},
+  'fanscan': { title: 'De Fanscan: scan-gebaseerd spaarmechanisme', secs: [
+    { l: 'Goal gradient effect', t: 'Scan-gebaseerde loyaliteitssystemen activeren het "goal gradient effect": naarmate mensen dichter bij een beloning komen, neemt hun motivatie toe (Hull, 1932, geciteerd in Kivetz et al., 2006). Dit verklaart waarom supermarktbonuskaarten zo effectief zijn.' },
+    { l: 'Phygitaal mechanisme', t: 'Het gebruik van Apple Pay als scanmedium sluit aan bij bestaande gewoonten van de doelgroep. Zatap (2024) bevestigt dat phygitale mechanismes fandata op een ethisch en gebruiksvriendelijke manier kunnen verrijken.' },
+    { l: 'Directe feedback', t: 'Door het scannen te koppelen aan onmiddellijke feedback (punten op het scherm) wordt een beloningsloop gecreëerd die herhaald gedrag stimuleert.' },
+    { l: 'Bron', t: 'Kivetz et al. (2006); Zatap (2024); Behaviour Club (2021)', src: true }
+  ]},
+  'korting': { title: '5% korting via de Fanscan bij horeca', secs: [
+    { l: 'Gedragsactivatie', t: 'De 5% korting bij horeca koppelt horecaomzet direct aan kaarthouderschap. Elke scan genereert een datapunt over gedrag in het stadion, wat de fanprofielen in het CRM verder verrijkt.' },
+    { l: 'Financieel effect', t: 'Een gemiddelde kaarthouder besteedt €50 per seizoen aan horeca (5 wedstrijden × €10). Netto levert dit Almere €30 op na marge (60%). De 5% korting kost slechts €2,50 per seizoen — sterke ROI.' },
+    { l: 'Bron', t: 'PassKit (2025); eigen kosten-batenanalyse Groep 6', src: true }
+  ]},
+  'quiz': { title: 'Rustquiz & leaderboard', secs: [
+    { l: 'Gebaseerd op Ajax Quiz', t: 'De quiz is geïnspireerd op het Fan of the Match-systeem van LiveWall, dat Ajax gebruikte bij thuiswedstrijden in de Johan Cruijff Arena met meer dan 54.000 toeschouwers. Ajax integreerde het systeem structureel in seizoen 2018/2019.' },
+    { l: 'Ons concept gaat verder', t: 'De punten zijn gekoppeld aan het rewardssysteem, waardoor engagement zich opbouwt over meerdere wedstrijden. Thuisspelers kunnen ook meedoen — gewonnen punten tellen mee op het leaderboard.' },
+    { l: 'Bewezen effect', t: 'Digitaal betrokken fans komen 55% vaker terug voor toekomstige tickets, en 68% geeft meer uit in het stadion wanneer de digitale ervaring sterk is.' },
+    { l: 'Bron', t: 'LiveWall (z.d.); iSportConnect & Choicely (2023)', src: true }
+  ]},
+  'push-rich': { title: 'Rijke push-meldingen voor kaarthouders', secs: [
+    { l: 'Verschil met standaard', t: 'Rich push-notificaties met afbeeldingen of video hebben een 56% hogere open rate. Een doelpuntmelding voor een kaarthouder bevat de naam van de speler, een actieafbeelding en de actuele stand — een niet-kaarthouder ziet alleen "1-0".' },
+    { l: 'Strategisch onderscheid', t: 'Dit maakt het verschil zichtbaar bij elke wedstrijd — ook voor mensen die nog geen kaart hebben. Het werkt als passieve advertentie voor het product.' },
+    { l: 'Bron', t: 'Airship (2023); MobileLoud (2025)', src: true }
+  ]},
+  'verjaardag': { title: 'Verjaardagsvideo van favoriete speler', secs: [
+    { l: 'Emotionele impact', t: 'Een persoonlijke videoboodschap van een speler op de verjaardag van een kaarthouder is een emotionele activatie met hoge impact. Arena (2024) benoemt dat exclusieve, persoonlijke beloningen een sterke driver zijn voor opt-in.' },
+    { l: 'Gen Z volgt personen', t: 'Loyalty is built around athletes, not teams (WSC Sports, 2026). Een persoonlijke boodschap van hun favoriete speler is daarin een van de krachtigste instrumenten die een club kan inzetten.' },
+    { l: 'Bron', t: 'Arena (2024); WSC Sports (2026)', src: true }
+  ]},
+  'content': { title: 'Exclusieve behind-the-scenes content', secs: [
+    { l: 'Wat jongere fans willen zien', t: 'Twee derde van de sportdirecteuren maakt zich zorgen over de afnemende relevantie van live sport bij jongeren, die steeds meer aandacht verschuiven naar highlights en behind-the-scenes documentaires.' },
+    { l: 'Authenticiteit is key', t: 'De meest effectieve content is rauw en authentiek: kleedkamervideo\'s en spontane reacties presteren consistent beter dan gelikte producties. Gen Z-fans willen zich insider voelen, niet toeschouwer.' },
+    { l: 'Bron', t: 'WSC Sports (2026); Journey (2025); Altman Solon (2024)', src: true }
+  ]},
+  'rewards': { title: 'Rewardssysteem: mijlpalen & inwisselen', secs: [
+    { l: 'Gamification werkt', t: 'Gamification verhoogt klantretentie met 30%, engagement met 47% en merktrouw met 22%. Kim et al. (2019) vonden dat gamified loyaliteitsprogramma\'s de hedonische waarde van interactie verhogen en een flow-toestand creëren.' },
+    { l: 'Rewardsstructuur onderbouwd', t: 'Rewards zijn gekozen op drie criteria: (1) laagdrempelig en snel bereikbaar — sleutelhanger bij 10 punten, (2) opbouwend naar grotere prijzen — shirt bij 80 punten, (3) direct merkgerelateerd.' },
+    { l: 'Financieel', t: 'De redemption rate is conservatief geschat op 25%, conform branchegemiddelden voor nieuwe programma\'s. Almere maakt altijd winst op elke actieve kaarthouder.' },
+    { l: 'Bron', t: 'Kim et al. (2019); Antavo (2024); Mastercard Services (2023)', src: true }
+  ]},
+  'leaderboard': { title: 'Seizoen-leaderboard & competitieve motivatie', secs: [
+    { l: 'Competitie als driver', t: 'Het leaderboard voegt competitieve motivatie toe — bewezen een sterkere driver voor herhaald gedrag dan financiële beloningen alleen. Badges creëren "status", een universeel menselijk verlangen naar erkenning.' },
+    { l: 'Structuur', t: 'De top 3 aan het einde van het seizoen wint een grote prijs (bijv. gesigneerd shirt of VIP-ervaring). Dit houdt de motivatie gedurende het hele seizoen hoog.' },
+    { l: 'Bron', t: 'Arrivia (2025); Brandmovers (2025); Mastercard Services (2023)', src: true }
+  ]}
+};
+
+function showPopup(key) {
+  var d = popData[key];
+  if (!d) return;
+  document.getElementById('popTitle').textContent = d.title;
+  var html = '';
+  for (var i = 0; i < d.secs.length; i++) {
+    var s = d.secs[i];
+    html += '<div class="pop-sec"><div class="pop-sec-lbl">' + s.l + '</div>';
+    if (s.src) {
+      html += '<span class="src">' + s.t + '</span>';
+    } else {
+      html += '<p>' + s.t + '</p>';
+    }
+    html += '</div>';
+  }
+  document.getElementById('popBody').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closePopup() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.getElementById('popClose').onclick = closePopup;
+document.getElementById('overlay').onclick = function(e) {
+  if (e.target === document.getElementById('overlay')) closePopup();
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePopup();
+  if (!document.getElementById('overlay').classList.contains('open')) {
+    if (e.key === 'ArrowRight' && cur < total - 1) showPhase(cur + 1);
+    if (e.key === 'ArrowLeft' && cur > 0) showPhase(cur - 1);
+  }
+});
+</script>
+</body>
+</html>
